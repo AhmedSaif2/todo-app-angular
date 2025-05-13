@@ -1,0 +1,32 @@
+.action-buttons button {
+  font-size: 0.7rem;
+  margin-bottom: 0.5rem;
+}
+.search-form {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+.card {
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 0.7rem;
+  margin-bottom: 1rem;
+}
+.low-priority {
+  width: 35%;
+  background-color: #a3b18a;
+}
+.medium-priority {
+  width: 35%;
+  background-color: #2980b9;
+}
+.high-priority {
+  width: 35%;
+  background-color: #8e44ad;
+}
+.card .Pending-task:hover,
+.card .Completed-task:hover {
+  cursor: grabbing;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}

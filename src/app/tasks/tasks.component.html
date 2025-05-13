@@ -1,0 +1,32 @@
+<div class="tasks-container" id="pending-container">
+  <div class="card task-list">
+    <div class="card-body mb-3">
+      <h2 class="text-center text-warning">{{ taskState }}</h2>
+      <div class="search-form d-flex justify-content-between mb-3">
+        <div class="border rounded-1 bg-white d-flex">
+          <input
+            type="text"
+            class="form-control shadow-none border-0"
+            name="title"
+            placeholder="Search..."
+          />
+          <button class="border-0 rounded-1 bg-white search">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+        <div class="border rounded-1 bg-white d-flex">
+          <button
+            class="border-0 rounded-1 bg-white sort"
+            data-bs-toggle="tooltip"
+            title="sort by priority"
+          >
+            <i class="bi bi-sort-up"></i>
+          </button>
+        </div>
+      </div>
+      <div>
+        <!--                 Add pending tasks here-->
+      </div>
+    </div>
+  </div>
+</div>
