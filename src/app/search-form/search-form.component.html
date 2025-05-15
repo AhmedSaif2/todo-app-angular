@@ -1,0 +1,27 @@
+<div class="search-form d-flex justify-content-between mb-3">
+  <div class="border rounded-1 bg-white d-flex">
+    <input
+      type="text"
+      class="form-control shadow-none border-0"
+      name="title"
+      placeholder="Search..."
+      (input)="onSearchTextChange()"
+      [(ngModel)]="searchText"
+    />
+    <button class="border-0 rounded-1 bg-white search"></button>
+  </div>
+  <div class="border rounded-1 bg-white d-flex">
+    <button
+      class="border-0 rounded-1 bg-white sort"
+      data-bs-toggle="tooltip"
+      title="sort by priority"
+      (click)="onPriorityChange()"
+    >
+      @if (priority) {
+      <i class="bi bi-sort-up"></i>
+      } @else {
+      <i class="bi bi-sort-down-alt"></i>
+      }
+    </button>
+  </div>
+</div>

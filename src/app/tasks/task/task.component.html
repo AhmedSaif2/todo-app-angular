@@ -1,0 +1,36 @@
+<div
+  class="card bg-light task"
+  draggable="true"
+  (dragstart)="onDragStart($event, task)"
+>
+  <div class="card-body">
+    <div
+      class="text-center text-white rounded-1 mb-3 {{ task.priority }}-priority"
+      id="priority"
+    >
+      {{ task.priority }}
+    </div>
+    <h5 class="card-title">{{ task.title }}</h5>
+    <p class="card-text">{{ task.description }}</p>
+    <div class="action-buttons d-flex justify-content-around">
+      @if (task.state == "Pending") {
+      <button
+        class="btn move-btn text-white btn-success"
+        (click)="onChangeState()"
+      >
+        Move To Completed
+      </button>
+      } @else {
+      <button
+        class="btn move-btn btn-outline-warning"
+        (click)="onChangeState()"
+      >
+        Move To Pending
+      </button>
+      }
+      <button class="btn btn-danger delete-btn" (click)="onDeleteTask()">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
