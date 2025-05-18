@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { dummyTasks } from './dummy-tasks';
 import { NewTask, Task } from './tasks.model';
-import { BehaviorSubject, from, map, Observable } from 'rxjs';
+import { from, map, Observable } from 'rxjs';
 import {
   collection,
   collectionData,
