@@ -3,15 +3,14 @@ import { TaskService } from '../tasks.service';
 import { FormsModule } from '@angular/forms';
 import { Task } from '../tasks.model';
 import { ActivatedRoute } from '@angular/router';
-import { user } from '@angular/fire/auth';
 import { TaskComponent } from '../task/task.component';
 import { SearchFormComponent } from '../../../shared/components/search-form/search-form.component';
 
 @Component({
   selector: 'app-tasks',
   imports: [TaskComponent, FormsModule, SearchFormComponent],
-  templateUrl: './tasks.component.html',
-  styleUrl: './tasks.component.css',
+  templateUrl: './task-list.component.html',
+  styleUrl: './task-list.component.css',
 })
 export class TasksComponent implements OnInit {
   @Input({ required: true }) taskState!: 'Pending' | 'Completed';

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { TasksComponent } from '../tasks/task-list/tasks.component';
+import { TasksComponent } from '../tasks/task-list/task-list.component';
 import { NewTaskComponent } from '../tasks/new-task/new-task.component';
 
 @Component({
