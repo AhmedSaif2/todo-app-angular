@@ -38,6 +38,9 @@
         </select>
       </div>
       <button type="submit" class="w-100 btn btn-primary mb-3">Add</button>
+      @if (isLoading) {
+      <app-loading-spinner />
+      }
     </div>
   </form>
 </div>

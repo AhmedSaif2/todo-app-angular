@@ -10,11 +10,15 @@
         (search)="onSearch($event)"
         (priorityToggle)="onSort($event)"
       ></app-search-form>
+      @if (isLoading) {
+      <app-loading-spinner />
+      } @else {
       <div>
         @for (task of tasks; track task.id) {
         <app-task [task]="task" />
         }
       </div>
+      }
     </div>
   </div>
 </div>

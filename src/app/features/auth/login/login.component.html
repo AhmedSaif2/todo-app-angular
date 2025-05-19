@@ -24,3 +24,6 @@
     <a [routerLink]="['/signup']">Don't have an account? Sign Up</a>
   </form>
 </div>
+@if (isLoading) {
+<app-loading-spinner />
+}

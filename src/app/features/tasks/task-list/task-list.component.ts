@@ -5,10 +5,16 @@ import { Task } from '../tasks.model';
 import { ActivatedRoute } from '@angular/router';
 import { TaskComponent } from '../task/task.component';
 import { SearchFormComponent } from '../../../shared/components/search-form/search-form.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-tasks',
-  imports: [TaskComponent, FormsModule, SearchFormComponent],
+  imports: [
+    TaskComponent,
+    FormsModule,
+    SearchFormComponent,
+    LoadingSpinnerComponent,
+  ],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.css',
 })
@@ -18,10 +24,12 @@ export class TasksComponent implements OnInit {
   searchText = '';
   private taskService = inject(TaskService);
   private destroyRef = inject(DestroyRef);
+  public isLoading = true;
   tasks: Task[] = [];
   ngOnInit(): void {
     const userId = this.route.snapshot.paramMap.get('uid');
     const subscription = this.taskService.getTasks().subscribe((next) => {
+      this.isLoading = false;
       return (this.tasks = next.filter(
         (task) => task.state === this.taskState && task.userId === userId
       ));

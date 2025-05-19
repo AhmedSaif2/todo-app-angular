@@ -3,16 +3,18 @@ import { NewTask } from '../tasks.model';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../tasks.service';
 import { ActivatedRoute } from '@angular/router';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-new-task',
-  imports: [FormsModule],
+  imports: [FormsModule, LoadingSpinnerComponent],
   templateUrl: './new-task.component.html',
   styleUrl: './new-task.component.css',
 })
 export class NewTaskComponent {
   constructor(private route: ActivatedRoute) {}
   defaultTask!: NewTask;
+  public isLoading = false;
   ngOnInit(): void {
     this.defaultTask = {
       title: '',
@@ -30,8 +32,11 @@ export class NewTaskComponent {
       alert('Please fill in all fields');
       return;
     }
+    this.isLoading = true;
     this.taskService.addNewTask(this.newTask).subscribe({
-      next: () => console.log('Task added successfully'),
+      next: () => {
+        this.isLoading = false;
+      },
       error: (err) => console.error(err),
     });
     this.newTask = { ...this.defaultTask };
