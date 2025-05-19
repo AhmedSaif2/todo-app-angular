@@ -9,17 +9,16 @@ body {
     flex-direction: column;
   }
 }
-@media only screen and (max-width: 672px) {
-  body .container {
-    justify-content: center !important;
-  }
-}
-@media only screen and (max-width: 655px) {
+@media only screen and (max-width: 700px) {
   .task-list,
   .new-task {
     width: 24rem !important;
   }
+  body .container {
+    justify-content: center !important;
+  }
 }
+
 @media screen and (max-width: 425px) {
   .task-list,
   .new-task {
