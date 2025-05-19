@@ -1,11 +1,11 @@
 import { Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
-import { TaskComponent } from './task/task.component';
-import { TaskService } from './tasks.service';
+import { TaskService } from '../tasks.service';
 import { FormsModule } from '@angular/forms';
-import { Task } from './tasks.model';
-import { SearchFormComponent } from '../search-form/search-form.component';
+import { Task } from '../tasks.model';
 import { ActivatedRoute } from '@angular/router';
 import { user } from '@angular/fire/auth';
+import { TaskComponent } from '../task/task.component';
+import { SearchFormComponent } from '../../../shared/components/search-form/search-form.component';
 
 @Component({
   selector: 'app-tasks',

@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { NotFoundComponent } from './not-found/not-found.component';
+import { NotFoundComponent } from './features/not-found/not-found.component';
 import {
   authGuard,
   SignupComponent,
-} from './auth-form/signup/signup.component';
-import { LoginComponent } from './auth-form/login/login.component';
+} from './features/auth/signup/signup.component';
+import { LoginComponent } from './features/auth/login/login.component';
 
 export const routes: Routes = [
   {
@@ -27,7 +27,7 @@ export const routes: Routes = [
       {
         path: ':uid/tasks',
         loadComponent: () =>
-          import('./home/home.component').then((m) => m.HomeComponent),
+          import('./features/home/home.component').then((m) => m.HomeComponent),
       },
     ],
   },

@@ -6,9 +6,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AuthService } from '../authService.service';
 import { CanActivateFn, Router } from '@angular/router';
 import { map } from 'rxjs';
+import { AuthService } from '../../../core/services/authService.service';
 
 @Component({
   selector: 'app-signup',
