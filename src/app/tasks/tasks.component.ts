@@ -4,6 +4,8 @@ import { TaskService } from './tasks.service';
 import { FormsModule } from '@angular/forms';
 import { Task } from './tasks.model';
 import { SearchFormComponent } from '../search-form/search-form.component';
+import { ActivatedRoute } from '@angular/router';
+import { user } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-tasks',
@@ -13,15 +15,16 @@ import { SearchFormComponent } from '../search-form/search-form.component';
 })
 export class TasksComponent implements OnInit {
   @Input({ required: true }) taskState!: 'Pending' | 'Completed';
+  private route = inject(ActivatedRoute);
   searchText = '';
   private taskService = inject(TaskService);
   private destroyRef = inject(DestroyRef);
   tasks: Task[] = [];
   ngOnInit(): void {
+    const userId = this.route.snapshot.paramMap.get('uid');
     const subscription = this.taskService.getTasks().subscribe((next) => {
-      console.log(next);
       return (this.tasks = next.filter(
-        (task) => task.state === this.taskState
+        (task) => task.state === this.taskState && task.userId === userId
       ));
     });
     this.destroyRef.onDestroy(() => subscription.unsubscribe());
@@ -47,15 +50,27 @@ export class TasksComponent implements OnInit {
     });
   }
   onSearch(text: string) {
-    this.taskService.searchTasks(text, this.taskState).subscribe({
-      next: (tasks) => (this.tasks = tasks),
-      error: (err) => console.error(err),
-    });
+    this.taskService
+      .searchTasks(
+        text,
+        this.taskState,
+        this.route.snapshot.paramMap.get('uid')!
+      )
+      .subscribe({
+        next: (tasks) => (this.tasks = tasks),
+        error: (err) => console.error(err),
+      });
   }
   onSort(sortType: boolean) {
-    this.taskService.sortTasks(sortType, this.taskState).subscribe({
-      next: (tasks) => (this.tasks = tasks),
-      error: (err) => console.error(err),
-    });
+    this.taskService
+      .sortTasks(
+        sortType,
+        this.taskState,
+        this.route.snapshot.paramMap.get('uid')!
+      )
+      .subscribe({
+        next: (tasks) => (this.tasks = tasks),
+        error: (err) => console.error(err),
+      });
   }
 }

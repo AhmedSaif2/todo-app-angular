@@ -1,0 +1,35 @@
+<div class="signup-container">
+  <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form">
+    <h2>Sign Up</h2>
+
+    <div class="form-group">
+      <label for="fullName">Full Name</label>
+      <input id="fullName" type="text" formControlName="fullName" />
+      @if (signupForm.controls.fullName.touched &&
+      signupForm.controls.fullName.invalid) {
+      <div class="error">Full name is required.</div>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email" name="email" />
+      @if (signupForm.controls.email.touched &&
+      signupForm.controls.email.invalid) {
+      <div class="error">Valid email is required.</div>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input id="password" type="password" formControlName="password" />
+      @if (signupForm.controls.password.touched &&
+      signupForm.controls.password.invalid) {
+      <div class="error">Password must be at least 6 characters.</div>
+      }
+    </div>
+    <button type="submit" [disabled]="signupForm.invalid">
+      Create Account
+    </button>
+  </form>
+</div>

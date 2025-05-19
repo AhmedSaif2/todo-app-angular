@@ -39,21 +39,24 @@ export class TaskService {
   }
   public searchTasks(
     searchText: string,
-    state: 'Pending' | 'Completed'
+    state: 'Pending' | 'Completed',
+    userId: string
   ): Observable<Task[]> {
     return this.getTasks().pipe(
       map((tasks) =>
         tasks.filter(
           (task) =>
             task.title.toLowerCase().includes(searchText.toLowerCase()) &&
-            task.state === state
+            task.state === state &&
+            task.userId === userId
         )
       )
     );
   }
   public sortTasks(
     sortType: boolean,
-    state: 'Pending' | 'Completed'
+    state: 'Pending' | 'Completed',
+    userId: string
   ): Observable<Task[]> {
     const priorityOrder = ['High', 'Medium', 'Low'];
     return this.getTasks().pipe(
@@ -66,7 +69,7 @@ export class TaskService {
               : priorityOrder.indexOf(b.priority) -
                 priorityOrder.indexOf(a.priority)
           )
-          .filter((task) => task.state === state)
+          .filter((task) => task.state === state && task.userId === userId)
       )
     );
   }

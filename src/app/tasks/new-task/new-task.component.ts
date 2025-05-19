@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { NewTask } from '../tasks.model';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../tasks.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-new-task',
@@ -10,15 +11,21 @@ import { TaskService } from '../tasks.service';
   styleUrl: './new-task.component.css',
 })
 export class NewTaskComponent {
-  readonly defaultTask: NewTask = {
-    title: '',
-    description: '',
-    state: 'Pending',
-    priority: 'Low',
-  };
+  constructor(private route: ActivatedRoute) {}
+  defaultTask!: NewTask;
+  ngOnInit(): void {
+    this.defaultTask = {
+      title: '',
+      description: '',
+      state: 'Pending',
+      priority: 'Low',
+      userId: '',
+    };
+  }
   newTask: NewTask = { ...this.defaultTask };
   private taskService = inject(TaskService);
   onAddTask() {
+    this.newTask.userId = this.route.snapshot.paramMap.get('uid')!;
     if (!this.newTask.title || !this.newTask.description) {
       alert('Please fill in all fields');
       return;

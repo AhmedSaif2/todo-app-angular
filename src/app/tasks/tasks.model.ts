@@ -4,6 +4,7 @@ export interface Task {
   description: string;
   state: 'Pending' | 'Completed';
   priority: 'Low' | 'Medium' | 'High';
+  userId: string;
 }
 
 export interface NewTask {
@@ -11,4 +12,5 @@ export interface NewTask {
   description: string;
   state: 'Pending' | 'Completed';
   priority: 'Low' | 'Medium' | 'High';
+  userId: string;
 }
