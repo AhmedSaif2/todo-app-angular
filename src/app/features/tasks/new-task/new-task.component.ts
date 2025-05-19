@@ -34,5 +34,6 @@ export class NewTaskComponent {
       next: () => console.log('Task added successfully'),
       error: (err) => console.error(err),
     });
+    this.newTask = { ...this.defaultTask };
   }
 }
