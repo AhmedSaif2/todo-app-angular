@@ -14,7 +14,7 @@
       <app-loading-spinner />
       } @else {
       <div>
-        @for (task of tasks; track task.id) {
+        @for (task of localTasks; track task.id) {
         <app-task [task]="task" />
         }
       </div>

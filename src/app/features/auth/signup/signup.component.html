@@ -31,6 +31,9 @@
     <button type="submit" [disabled]="signupForm.invalid">
       Create Account
     </button>
+    @if (error) {
+    <div class="error">A user with this email already exists.</div>
+    }
   </form>
 </div>
 @if (isLoading) {

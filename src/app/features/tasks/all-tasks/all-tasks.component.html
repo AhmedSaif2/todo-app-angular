@@ -1,0 +1,14 @@
+<div class="d-flex flex-wrap justify-content-around">
+  <app-tasks
+    [tasks]="pendingTasks"
+    [taskState]="'Pending'"
+    [isLoading]="isLoading"
+    (taskChanged)="onTaskChanged()"
+  />
+  <app-tasks
+    [tasks]="completedTasks"
+    [taskState]="'Completed'"
+    [isLoading]="isLoading"
+    (taskChanged)="onTaskChanged()"
+  />
+</div>

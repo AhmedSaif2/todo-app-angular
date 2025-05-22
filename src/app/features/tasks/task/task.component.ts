@@ -1,6 +1,6 @@
-import { afterNextRender, Component, inject, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { Task } from '../tasks.model';
-import { TaskService } from '../tasks.service';
+import { FirestoreService } from '../../../core/services/firestore.service';
 
 @Component({
   selector: 'app-task',
@@ -10,25 +10,26 @@ import { TaskService } from '../tasks.service';
 })
 export class TaskComponent {
   @Input({ required: true }) task!: Task;
-  private taskService = inject(TaskService);
+  private fireStore = inject(FirestoreService);
   onDeleteTask() {
     if (confirm('Are you sure you want to delete this task?')) {
       // Assuming there's a service to handle task deletion
-      this.taskService.deleteTask(this.task.id).subscribe({
-        next: () => console.log('Task Deleted.'),
+      this.fireStore.deleteTask(this.task.id).subscribe({
+        next: () => this.fireStore.notifyTaskUpdated(),
         error: (err) => console.error(err),
       });
       console.log('Task Deleted.');
     }
   }
   onChangeState() {
-    this.taskService
+    this.fireStore
       .updateTask(
         this.task.id,
-        this.task.state === 'Pending' ? 'Completed' : 'Pending'
+        this.task.state === 'Pending' ? 'Completed' : 'Pending',
+        this.task.userId
       )
       .subscribe({
-        next: () => console.log('Task Updated Successfully'),
+        next: () => this.fireStore.notifyTaskUpdated(),
         error: (err) => console.error(err),
       });
   }

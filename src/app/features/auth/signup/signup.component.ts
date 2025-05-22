@@ -6,10 +6,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { CanActivateFn, Router } from '@angular/router';
-import { map } from 'rxjs';
-import { AuthService } from '../../../core/services/authService.service';
+import { Router } from '@angular/router';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { FirestoreService } from '../../../core/services/firestore.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-signup',
@@ -18,9 +18,11 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
   styleUrl: './signup.component.css',
 })
 export class SignupComponent {
-  private authService = inject(AuthService);
+  private authService = inject(FirestoreService);
   private router = inject(Router);
-  public isLoading = false;
+  isLoading = false;
+  error = false;
+
   signupForm = new FormGroup({
     fullName: new FormControl('', {
       validators: [Validators.required, Validators.minLength(3)],
@@ -36,27 +38,20 @@ export class SignupComponent {
     this.isLoading = true;
     this.authService
       .signup(this.signupForm.value.email!, this.signupForm.value.password!)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
       .subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.router.navigate(['/users', response.user.uid, 'tasks']);
+          this.router.navigate(['/users', response.localId, 'tasks']);
         },
-        error: (err) => console.error(err),
+        error: (err) => {
+          this.error = true;
+          console.error(err);
+        },
       });
   }
 }
-
-export const authGuard: CanActivateFn = () => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
-
-  return authService.user$.pipe(
-    map((user) => {
-      if (user) {
-        return true;
-      } else {
-        return router.createUrlTree(['/login']);
-      }
-    })
-  );
-};

@@ -21,6 +21,9 @@
     </div>
 
     <button type="submit">Login</button>
+    @if (error) {
+    <div class="error">Wrong email or password.</div>
+    }
     <a [routerLink]="['/signup']">Don't have an account? Sign Up</a>
   </form>
 </div>

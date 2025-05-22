@@ -1,11 +1,22 @@
-import { Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
-import { TaskService } from '../tasks.service';
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  ɵDEFER_BLOCK_DEPENDENCY_INTERCEPTOR,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Task } from '../tasks.model';
 import { ActivatedRoute } from '@angular/router';
 import { TaskComponent } from '../task/task.component';
 import { SearchFormComponent } from '../../../shared/components/search-form/search-form.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { FirestoreService } from '../../../core/services/firestore.service';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-tasks',
@@ -18,23 +29,27 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.css',
 })
-export class TasksComponent implements OnInit {
+export class TasksComponent {
+  @Input({ required: true }) tasks!: Task[];
   @Input({ required: true }) taskState!: 'Pending' | 'Completed';
+  @Input({ required: true }) isLoading!: boolean;
+  @Output() taskChanged = new EventEmitter<void>();
   private route = inject(ActivatedRoute);
   searchText = '';
-  private taskService = inject(TaskService);
-  private destroyRef = inject(DestroyRef);
-  public isLoading = true;
-  tasks: Task[] = [];
-  ngOnInit(): void {
-    const userId = this.route.snapshot.paramMap.get('uid');
-    const subscription = this.taskService.getTasks().subscribe((next) => {
-      this.isLoading = false;
-      return (this.tasks = next.filter(
-        (task) => task.state === this.taskState && task.userId === userId
-      ));
-    });
-    this.destroyRef.onDestroy(() => subscription.unsubscribe());
+  private fireStore = inject(FirestoreService);
+  sortType = true;
+
+  get localTasks() {
+    const priorityOrder = ['High', 'Medium', 'Low'];
+    return this.tasks
+      .filter((task) => task.title.includes(this.searchText))
+      .sort((a, b) =>
+        this.sortType
+          ? priorityOrder.indexOf(a.priority) -
+            priorityOrder.indexOf(b.priority)
+          : priorityOrder.indexOf(b.priority) -
+            priorityOrder.indexOf(a.priority)
+      );
   }
 
   onDragOver(event: DragEvent) {
@@ -43,41 +58,21 @@ export class TasksComponent implements OnInit {
   onDrop(event: DragEvent) {
     event.preventDefault();
     const droppedData = event.dataTransfer?.getData('text/plain');
-    console.log(droppedData);
-
     if (!droppedData) return;
+
     const task: Task = JSON.parse(droppedData);
 
-    if (task.state == this.taskState) return;
+    if (task.state === this.taskState) return;
 
-    // this.taskService.updateTask(task.id, this.taskState);
-    this.taskService.updateTask(task.id, this.taskState).subscribe({
-      next: () => console.log('Task Updated Successfully'),
-      error: (err) => console.error(err),
-    });
+    this.fireStore
+      .updateTask(task.id, this.taskState, task.userId)
+      .subscribe(() => this.fireStore.notifyTaskUpdated());
   }
+
   onSearch(text: string) {
-    this.taskService
-      .searchTasks(
-        text,
-        this.taskState,
-        this.route.snapshot.paramMap.get('uid')!
-      )
-      .subscribe({
-        next: (tasks) => (this.tasks = tasks),
-        error: (err) => console.error(err),
-      });
+    this.searchText = text;
   }
   onSort(sortType: boolean) {
-    this.taskService
-      .sortTasks(
-        sortType,
-        this.taskState,
-        this.route.snapshot.paramMap.get('uid')!
-      )
-      .subscribe({
-        next: (tasks) => (this.tasks = tasks),
-        error: (err) => console.error(err),
-      });
+    this.sortType = !sortType;
   }
 }

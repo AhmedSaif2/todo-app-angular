@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, NgZone } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -7,8 +7,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/authService.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { FirestoreService } from '../../../core/services/firestore.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -22,9 +23,11 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
   styleUrl: './login.component.css',
 })
 export class LoginComponent {
-  private authService = inject(AuthService);
+  private authService = inject(FirestoreService);
   private router = inject(Router);
-  public isLoading = false;
+  isLoading = false;
+  error = false;
+
   loginForm = new FormGroup({
     email: new FormControl('', {
       validators: [Validators.required, Validators.email],
@@ -38,13 +41,19 @@ export class LoginComponent {
     this.isLoading = true;
     this.authService
       .login(this.loginForm.value.email!, this.loginForm.value.password!)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
       .subscribe({
         next: (response) => {
-          this.isLoading = false;
-          this.router.navigate(['/users', response.user.uid, 'tasks']);
-          console.log(response);
+          this.router.navigate(['/users', response.localId, 'tasks']);
         },
-        error: (err) => console.error(err),
+        error: (err) => {
+          this.error = true;
+          console.error(err);
+        },
       });
   }
 }

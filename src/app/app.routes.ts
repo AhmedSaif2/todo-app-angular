@@ -1,10 +1,8 @@
 import { Routes } from '@angular/router';
 import { NotFoundComponent } from './features/not-found/not-found.component';
-import {
-  authGuard,
-  SignupComponent,
-} from './features/auth/signup/signup.component';
+import { SignupComponent } from './features/auth/signup/signup.component';
 import { LoginComponent } from './features/auth/login/login.component';
+import { authGuard } from './core/services/firestore.service';
 
 export const routes: Routes = [
   {

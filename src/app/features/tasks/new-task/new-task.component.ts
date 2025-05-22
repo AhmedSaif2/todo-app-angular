@@ -1,9 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { NewTask } from '../tasks.model';
 import { FormsModule } from '@angular/forms';
-import { TaskService } from '../tasks.service';
 import { ActivatedRoute } from '@angular/router';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { FirestoreService } from '../../../core/services/firestore.service';
 
 @Component({
   selector: 'app-new-task',
@@ -25,7 +25,7 @@ export class NewTaskComponent {
     };
   }
   newTask: NewTask = { ...this.defaultTask };
-  private taskService = inject(TaskService);
+  private fireStore = inject(FirestoreService);
   onAddTask() {
     this.newTask.userId = this.route.snapshot.paramMap.get('uid')!;
     if (!this.newTask.title || !this.newTask.description) {
@@ -33,12 +33,16 @@ export class NewTaskComponent {
       return;
     }
     this.isLoading = true;
-    this.taskService.addNewTask(this.newTask).subscribe({
+    this.fireStore.addNewTask(this.newTask).subscribe({
       next: () => {
         this.isLoading = false;
+        this.fireStore.notifyTaskUpdated();
+        this.newTask = { ...this.defaultTask };
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        this.isLoading = false;
+        console.error(err);
+      },
     });
-    this.newTask = { ...this.defaultTask };
   }
 }
