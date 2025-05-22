@@ -1,7 +1,10 @@
 <nav class="navbar bg-light shadow-sm mb-3">
-  <div class="container">
-    <a class="navbar-brand m-auto" href="#">
-      <img src="logo.png" alt="To-Do Logo" width="40" height="40" />
-    </a>
+  <a class="navbar-brand m-auto" href="#">
+    <img src="logo.png" alt="To-Do Logo" width="40" height="40" />
+  </a>
+  <div>
+    @if(isAuthenticated) {
+    <a class="m-auto logout" (click)="onLogout()"> Logout </a>
+    }
   </div>
 </nav>

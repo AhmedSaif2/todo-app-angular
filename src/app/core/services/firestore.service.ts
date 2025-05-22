@@ -12,8 +12,7 @@ import {
 } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CanActivateFn, Router } from '@angular/router';
-import { User } from 'firebase/auth';
-import { Auth } from '@angular/fire/auth';
+import { User } from '../../features/auth/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -22,10 +21,8 @@ export class FirestoreService {
   private readonly firestoreUrl = `https://firestore.googleapis.com/v1/projects/todo-app-29cd9/databases/(default)/documents`;
   private readonly identityUrl = `https://identitytoolkit.googleapis.com/v1/accounts`;
 
-  private auth = inject(Auth);
-
-  private userSubject = new BehaviorSubject<User | null>(null);
-  public user$ = this.userSubject.asObservable();
+  router = inject(Router);
+  user = new BehaviorSubject<User | null>(null);
 
   private taskUpdateSubject = new Subject<void>();
   taskUpdates$ = this.taskUpdateSubject.asObservable();
@@ -34,9 +31,7 @@ export class FirestoreService {
     this.taskUpdateSubject.next();
   }
 
-  constructor() {
-    this.auth.onAuthStateChanged((user) => this.userSubject.next(user));
-  }
+  constructor() {}
   private httpClient = inject(HttpClient);
   signup(email: string, password: string): Observable<any> {
     return this.httpClient
@@ -45,27 +40,85 @@ export class FirestoreService {
         password: password,
         returnSecureToken: true,
       })
-      .pipe(tap((res) => console.log(res)));
+      .pipe(
+        tap((res: any) => {
+          this.handleAuthentiaction(
+            res.email,
+            res.localId,
+            res.idToken,
+            res.expiresIn
+          );
+        })
+      );
   }
   // this.handleAuthentiaction(res.email, res.localId, res.idToken, res.expiresIn)
   login(email: string, password: string): Observable<any> {
-    return this.httpClient.post(
-      `${this.identityUrl}:signInWithPassword?key=${environment.firebase.apiKey}`,
-      {
-        email: email,
-        password: password,
-        returnSecureToken: true,
-      }
+    return this.httpClient
+      .post(
+        `${this.identityUrl}:signInWithPassword?key=${environment.firebase.apiKey}`,
+        {
+          email: email,
+          password: password,
+          returnSecureToken: true,
+        }
+      )
+      .pipe(
+        tap((res: any) => {
+          this.handleAuthentiaction(
+            res.email,
+            res.localId,
+            res.idToken,
+            res.expiresIn
+          );
+        })
+      );
+  }
+  handleAuthentiaction(
+    email: string,
+    userId: string,
+    token: string,
+    expiresIn: string
+  ) {
+    const expirationDate = new Date(new Date().getTime() + +expiresIn * 1000);
+    const userData = new User(email, userId, token, expirationDate);
+
+    this.user.next(userData);
+    localStorage.setItem('userData', JSON.stringify(userData));
+  }
+  autoLogin() {
+    const userData: {
+      email: string;
+      id: string;
+      _token: string;
+      _tokenExpirationDate: string;
+    } = JSON.parse(localStorage.getItem('userData')!);
+    if (!userData) {
+      return;
+    }
+    const loadedUser = new User(
+      userData.email,
+      userData.id,
+      userData._token,
+      new Date(userData._tokenExpirationDate)
     );
+    if (loadedUser.token) {
+      this.user.next(loadedUser);
+    }
+  }
+  logout() {
+    this.user.next(null);
+    localStorage.removeItem('userData');
+    this.router.navigate(['/login']);
   }
   getTasks(userId: string): Observable<any> {
-    return this.user$.pipe(
+    console.log(userId);
+    return this.user.pipe(
       take(1),
       switchMap((user) => {
-        return from(user!.getIdToken());
-      }),
-      switchMap((token) => {
-        const headers = this.createAuthHeaders(token);
+        if (!user) {
+          throw new Error('User is not authenticated.');
+        }
+        const headers = this.createAuthHeaders(user.token!);
 
         const url = `${this.firestoreUrl}:runQuery`;
 
@@ -96,13 +149,13 @@ export class FirestoreService {
     });
   }
   addNewTask(task: any): Observable<any> {
-    return this.user$.pipe(
+    return this.user.pipe(
       take(1),
       switchMap((user) => {
-        return from(user!.getIdToken());
-      }),
-      switchMap((token) => {
-        const headers = this.createAuthHeaders(token);
+        if (!user) {
+          throw new Error('User is not authenticated.');
+        }
+        const headers = this.createAuthHeaders(user.token!);
 
         const body = {
           fields: {
@@ -119,11 +172,13 @@ export class FirestoreService {
     );
   }
   updateTask(id: string, state: string, userId: string): Observable<any> {
-    return this.user$.pipe(
+    return this.user.pipe(
       take(1),
-      switchMap((user) => from(user!.getIdToken())),
-      switchMap((token) => {
-        const headers = this.createAuthHeaders(token);
+      switchMap((user) => {
+        if (!user) {
+          throw new Error('User is not authenticated.');
+        }
+        const headers = this.createAuthHeaders(user.token!);
         const body = {
           fields: {
             state: { stringValue: state },
@@ -138,13 +193,14 @@ export class FirestoreService {
     );
   }
   public deleteTask(id: string): Observable<any> {
-    return this.user$.pipe(
+    return this.user.pipe(
       take(1),
+
       switchMap((user) => {
-        return from(user!.getIdToken());
-      }),
-      switchMap((token) => {
-        const headers = this.createAuthHeaders(token);
+        if (!user) {
+          throw new Error('User is not authenticated.');
+        }
+        const headers = this.createAuthHeaders(user.token!);
         const url = `${this.firestoreUrl}/tasks/${id}`;
         return this.httpClient.delete(url, { headers });
       })
@@ -176,8 +232,7 @@ export class FirestoreService {
 export const authGuard: CanActivateFn = () => {
   const authService = inject(FirestoreService);
   const router = inject(Router);
-
-  return authService.user$.pipe(
+  return authService.user.pipe(
     map((user) => {
       if (user) {
         return true;
