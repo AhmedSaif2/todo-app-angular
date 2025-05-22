@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
-import { TasksComponent } from '../tasks/task-list/task-list.component';
-import { NewTaskComponent } from '../tasks/new-task/new-task.component';
-import { AllTasksComponent } from '../tasks/all-tasks/all-tasks.component';
-
+import { NewTaskComponent } from '../../features/tasks/new-task/new-task.component';
+import { AllTasksComponent } from '../../features/tasks/all-tasks/all-tasks.component';
 @Component({
   selector: 'app-home',
   imports: [NewTaskComponent, AllTasksComponent],

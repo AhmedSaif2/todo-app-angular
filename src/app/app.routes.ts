@@ -25,7 +25,7 @@ export const routes: Routes = [
       {
         path: ':uid/tasks',
         loadComponent: () =>
-          import('./features/home/home.component').then((m) => m.HomeComponent),
+          import('./layout/home/home.component').then((m) => m.HomeComponent),
       },
     ],
   },
