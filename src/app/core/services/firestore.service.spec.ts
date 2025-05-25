@@ -41,12 +41,13 @@ const mockTasks = [
 
 describe('FirestoreService', () => {
   const firestoreUrl = `https://firestore.googleapis.com/v1/projects/todo-app-29cd9/databases/(default)/documents`;
-  const identityUrl = `https://identitytoolkit.googleapis.com/v1/accounts`;
 
   let httpTesting: HttpTestingController;
   let service: FirestoreService;
 
   beforeEach(() => {
+    spyOn(localStorage, 'getItem').and.returnValue(JSON.stringify(fakeUser));
+
     TestBed.configureTestingModule({
       providers: [
         FirestoreService,
@@ -56,8 +57,7 @@ describe('FirestoreService', () => {
     });
     httpTesting = TestBed.inject(HttpTestingController);
     service = TestBed.inject(FirestoreService);
-
-    service.user = new BehaviorSubject<User | null>(fakeUser);
+    //service.user = new BehaviorSubject<User | null>(fakeUser);
   });
 
   afterEach(() => {
@@ -99,17 +99,7 @@ describe('FirestoreService', () => {
       },
     ]);
   });
-  it("should throw an error if the user isn't authenticated", async () => {
-    service.user = new BehaviorSubject<User | null>(null);
-    service.getTasks('123').subscribe(
-      (next) => {
-        expect(next).toBeUndefined();
-      },
-      (error) => {
-        expect(error).toEqual(new Error('User is not authenticated.'));
-      }
-    );
-  });
+
   it('should add a new task', async () => {
     service
       .addNewTask({
@@ -158,37 +148,5 @@ describe('FirestoreService', () => {
       'Request to update a task'
     );
     expect(req.request.method).toBe('DELETE');
-  });
-  it('should login successfuly', async () => {
-    service
-      .login('fakeEmail', '123')
-      .subscribe((response) => expect(response).toBeTruthy());
-    const req = httpTesting.expectOne(
-      `${identityUrl}:signInWithPassword?key=${environment.firebase.apiKey}`
-    );
-    expect(req.request.method).toBe('POST');
-  });
-  it('should signup successfuly', async () => {
-    service
-      .signup('fakeEmail', '123')
-      .subscribe((response) => expect(response).toBeTruthy());
-    const req = httpTesting.expectOne(
-      `${identityUrl}:signUp?key=${environment.firebase.apiKey}`
-    );
-    expect(req.request.method).toBe('POST');
-  });
-  it('should create a user data in local storage', async () => {
-    service.handleAuthentiaction('fakeEmail', '123', 'fakeToken', '100');
-    expect(localStorage.getItem('userData')).toBeTruthy();
-  });
-  it('should try to login automatically', async () => {
-    localStorage.setItem('userData', JSON.stringify(fakeUser));
-    service.autoLogin();
-    expect(localStorage.getItem('userData')).toBeTruthy();
-  });
-  it('should logout', async () => {
-    localStorage.setItem('userData', JSON.stringify(fakeUser));
-    service.logout();
-    expect(localStorage.getItem('userData')).toBeNull();
   });
 });

@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FirestoreService } from '../../core/services/firestore.service';
+import { AuthService } from '../../features/auth/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -9,7 +10,7 @@ import { FirestoreService } from '../../core/services/firestore.service';
 })
 export class HeaderComponent implements OnInit {
   isAuthenticated = false;
-  authService = inject(FirestoreService);
+  authService = inject(AuthService);
   ngOnInit() {
     this.authService.user.subscribe((user) => (this.isAuthenticated = !!user));
   }

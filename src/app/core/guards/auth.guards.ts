@@ -1,10 +1,10 @@
 import { CanActivateFn, Router } from '@angular/router';
-import { FirestoreService } from '../services/firestore.service';
 import { inject } from '@angular/core';
 import { map } from 'rxjs';
+import { AuthService } from '../../features/auth/auth.service';
 
 export const authGuard: CanActivateFn = () => {
-  const authService = inject(FirestoreService);
+  const authService = inject(AuthService);
   const router = inject(Router);
   return authService.user.pipe(
     map((user) => {

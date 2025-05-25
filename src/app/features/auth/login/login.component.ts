@@ -8,8 +8,8 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import { FirestoreService } from '../../../core/services/firestore.service';
 import { finalize } from 'rxjs';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +23,7 @@ import { finalize } from 'rxjs';
   styleUrl: './login.component.css',
 })
 export class LoginComponent {
-  private authService = inject(FirestoreService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   isLoading = false;
   error = false;

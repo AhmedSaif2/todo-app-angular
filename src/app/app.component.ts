@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { HeaderComponent } from './layout/header/header.component';
 import { RouterOutlet } from '@angular/router';
-import { FirestoreService } from './core/services/firestore.service';
+import { AuthService } from './features/auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +9,7 @@ import { FirestoreService } from './core/services/firestore.service';
   templateUrl: './app.component.html',
 })
 export class AppComponent implements OnInit {
-  authService = inject(FirestoreService);
+  authService = inject(AuthService);
   ngOnInit() {
     this.authService.autoLogin();
   }

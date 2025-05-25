@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root',
 })
-export class authService {
+export class AuthService {
   private readonly identityUrl = `https://identitytoolkit.googleapis.com/v1/accounts`;
 
   router = inject(Router);
