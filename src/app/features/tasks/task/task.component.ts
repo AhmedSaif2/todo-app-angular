@@ -16,9 +16,7 @@ export class TaskComponent {
       // Assuming there's a service to handle task deletion
       this.fireStore.deleteTask(this.task.id).subscribe({
         next: () => this.fireStore.notifyTaskUpdated(),
-        error: (err) => console.error(err),
       });
-      console.log('Task Deleted.');
     }
   }
   onChangeState() {
@@ -30,7 +28,6 @@ export class TaskComponent {
       )
       .subscribe({
         next: () => this.fireStore.notifyTaskUpdated(),
-        error: (err) => console.error(err),
       });
   }
   onDragStart(event: DragEvent, task: Task) {

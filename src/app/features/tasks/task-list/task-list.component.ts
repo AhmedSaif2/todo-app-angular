@@ -34,7 +34,6 @@ export class TasksComponent {
   @Input({ required: true }) taskState!: 'Pending' | 'Completed';
   @Input({ required: true }) isLoading!: boolean;
   @Output() taskChanged = new EventEmitter<void>();
-  private route = inject(ActivatedRoute);
   searchText = '';
   private fireStore = inject(FirestoreService);
   sortType = true;

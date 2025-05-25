@@ -14,7 +14,7 @@ import { FirestoreService } from '../../../core/services/firestore.service';
 export class NewTaskComponent {
   constructor(private route: ActivatedRoute) {}
   defaultTask!: NewTask;
-  public isLoading = false;
+  isLoading = false;
   ngOnInit(): void {
     this.defaultTask = {
       title: '',

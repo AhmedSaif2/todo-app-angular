@@ -2,7 +2,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import {
   BehaviorSubject,
-  from,
   map,
   Observable,
   Subject,
@@ -11,8 +10,8 @@ import {
   tap,
 } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CanActivateFn, Router } from '@angular/router';
 import { User } from '../../features/auth/user.model';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +32,8 @@ export class FirestoreService {
 
   constructor() {}
   private httpClient = inject(HttpClient);
+
+  // TODO: Move auth logic to another service
   signup(email: string, password: string): Observable<any> {
     return this.httpClient
       .post(`${this.identityUrl}:signUp?key=${environment.firebase.apiKey}`, {
@@ -51,7 +52,6 @@ export class FirestoreService {
         })
       );
   }
-  // this.handleAuthentiaction(res.email, res.localId, res.idToken, res.expiresIn)
   login(email: string, password: string): Observable<any> {
     return this.httpClient
       .post(
@@ -126,13 +126,13 @@ export class FirestoreService {
 
         return this.httpClient.post(url, query, { headers }).pipe(
           map((response: any) => {
-            return this.filterTasks(response);
+            return this.handleFirestoreResponse(response);
           })
         );
       })
     );
   }
-  filterTasks(response: any) {
+  handleFirestoreResponse(response: any) {
     if (response[0].document == undefined) {
       return [];
     }
@@ -228,17 +228,3 @@ export class FirestoreService {
     });
   }
 }
-
-export const authGuard: CanActivateFn = () => {
-  const authService = inject(FirestoreService);
-  const router = inject(Router);
-  return authService.user.pipe(
-    map((user) => {
-      if (user) {
-        return true;
-      } else {
-        return router.createUrlTree(['/login']);
-      }
-    })
-  );
-};
