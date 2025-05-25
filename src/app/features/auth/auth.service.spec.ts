@@ -38,6 +38,13 @@ const mockTasks = [
   },
 ];
 
+const mockStorage = jasmine.createSpyObj('localStorage', [
+  'getItem',
+  'setItem',
+  'removeItem',
+]);
+mockStorage.getItem.and.returnValue(fakeUser);
+
 describe('AuthService', () => {
   const identityUrl = `https://identitytoolkit.googleapis.com/v1/accounts`;
 
@@ -50,25 +57,30 @@ describe('AuthService', () => {
     });
     httpTesting = TestBed.inject(HttpTestingController);
     service = TestBed.inject(AuthService);
-
-    //service.user = new BehaviorSubject<User | null>(fakeUser);
   });
-
-  afterEach(() => {
-    localStorage.clear();
-  });
-  // Inject the http service and test controller for each test
-
   it('should login successfuly', async () => {
+    spyOn(localStorage, 'setItem');
+
     service
       .login('fakeEmail', '123')
       .subscribe((response) => expect(response).toBeTruthy());
+
     const req = httpTesting.expectOne(
       `${identityUrl}:signInWithPassword?key=${environment.firebase.apiKey}`
     );
     expect(req.request.method).toBe('POST');
+    req.flush({
+      email: 'fakeEmail',
+      localId: '123',
+      idToken: 'fakeToken',
+      expiresIn: '100',
+    });
+    expect(service.user.getValue()?.userId).toEqual(fakeUser.userId);
+    expect(localStorage.setItem).toHaveBeenCalled();
   });
   it('should signup successfuly', async () => {
+    spyOn(localStorage, 'setItem');
+
     service
       .signup('fakeEmail', '123')
       .subscribe((response) => expect(response).toBeTruthy());
@@ -76,19 +88,37 @@ describe('AuthService', () => {
       `${identityUrl}:signUp?key=${environment.firebase.apiKey}`
     );
     expect(req.request.method).toBe('POST');
+    req.flush({
+      email: 'fakeEmail',
+      localId: '123',
+      idToken: 'fakeToken',
+      expiresIn: '3600',
+    });
+    expect(service.user.getValue()?.userId).toEqual(fakeUser.userId);
+    expect(localStorage.setItem).toHaveBeenCalled();
   });
   it('should create a user data in local storage', async () => {
+    spyOn(localStorage, 'setItem');
+
     service.handleAuthentiaction('fakeEmail', '123', 'fakeToken', '100');
-    expect(localStorage.getItem('userData')).toBeTruthy();
+    expect(localStorage.setItem).toHaveBeenCalled();
   });
-  it('should try to login automatically', async () => {
-    localStorage.setItem('userData', JSON.stringify(fakeUser));
+  it('should be able to login automatically', async () => {
+    spyOn(localStorage, 'getItem').and.returnValue(JSON.stringify(fakeUser));
+
     service.autoLogin();
-    expect(localStorage.getItem('userData')).toBeTruthy();
+    expect(localStorage.getItem).toHaveBeenCalledWith('userData');
+  });
+  it('should fail to login automatically', async () => {
+    spyOn(localStorage, 'getItem').and.returnValue(null);
+
+    service.autoLogin();
+    service.user.subscribe((user) => expect(user).toBeNull());
   });
   it('should logout', async () => {
-    localStorage.setItem('userData', JSON.stringify(fakeUser));
+    spyOn(localStorage, 'removeItem');
+
     service.logout();
-    expect(localStorage.getItem('userData')).toBeNull();
+    expect(localStorage.removeItem).toHaveBeenCalledWith('userData');
   });
 });
