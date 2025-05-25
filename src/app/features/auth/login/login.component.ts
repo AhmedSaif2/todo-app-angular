@@ -48,7 +48,9 @@ export class LoginComponent {
       )
       .subscribe({
         next: (response) => {
-          this.router.navigate(['/users', response.localId, 'tasks']);
+          this.router.navigate(['/users', response.localId, 'tasks'], {
+            replaceUrl: true,
+          });
         },
         error: (err) => {
           this.error = true;

@@ -91,13 +91,6 @@ export class AuthService {
   logout() {
     this.user.next(null);
     localStorage.removeItem('userData');
-    this.router.navigate(['/login']);
-  }
-
-  createAuthHeaders(token: string): HttpHeaders {
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
+    this.router.navigate(['/login'], { replaceUrl: true });
   }
 }

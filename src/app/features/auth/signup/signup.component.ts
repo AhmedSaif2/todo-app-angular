@@ -46,7 +46,9 @@ export class SignupComponent {
       .subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.router.navigate(['/users', response.localId, 'tasks']);
+          this.router.navigate(['/users', response.localId, 'tasks'], {
+            replaceUrl: true,
+          });
         },
         error: (err) => {
           this.error = true;

@@ -19,15 +19,12 @@ export class FirestoreService {
   private httpClient = inject(HttpClient);
   getTasks(userId: string): Observable<any> {
     const token = JSON.parse(localStorage.getItem('userData')!)._token;
-    console.log(token);
-
-    const headers = this.createAuthHeaders(token);
 
     const url = `${this.firestoreUrl}:runQuery`;
 
     const query = this.buildQuery('tasks', userId);
 
-    return this.httpClient.post(url, query, { headers }).pipe(
+    return this.httpClient.post(url, query).pipe(
       map((response: any) => {
         return this.handleFirestoreResponse(response);
       })
@@ -50,9 +47,6 @@ export class FirestoreService {
     });
   }
   addNewTask(task: any): Observable<any> {
-    const token = JSON.parse(localStorage.getItem('userData')!)._token;
-    const headers = this.createAuthHeaders(token);
-
     const body = {
       fields: {
         title: { stringValue: task.title },
@@ -63,11 +57,9 @@ export class FirestoreService {
       },
     };
     const url = `${this.firestoreUrl}/tasks`;
-    return this.httpClient.post(url, body, { headers });
+    return this.httpClient.post(url, body);
   }
   updateTask(id: string, state: string, userId: string): Observable<any> {
-    const token = JSON.parse(localStorage.getItem('userData')!)._token;
-    const headers = this.createAuthHeaders(token);
     const body = {
       fields: {
         state: { stringValue: state },
@@ -75,15 +67,13 @@ export class FirestoreService {
     };
     const url = `${this.firestoreUrl}/tasks/${id}?updateMask.fieldPaths=state`;
 
-    return this.httpClient.patch(url, body, { headers }).pipe(
+    return this.httpClient.patch(url, body).pipe(
       tap(() => this.getTasks(userId)) // Refresh task list
     );
   }
   public deleteTask(id: string): Observable<any> {
-    const token = JSON.parse(localStorage.getItem('userData')!)._token;
-    const headers = this.createAuthHeaders(token);
     const url = `${this.firestoreUrl}/tasks/${id}`;
-    return this.httpClient.delete(url, { headers });
+    return this.httpClient.delete(url);
   }
 
   buildQuery(collection: string, userId: string) {
@@ -99,11 +89,5 @@ export class FirestoreService {
         },
       },
     };
-  }
-  createAuthHeaders(token: string): HttpHeaders {
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
   }
 }
