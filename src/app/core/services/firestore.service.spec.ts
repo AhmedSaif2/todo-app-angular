@@ -1,15 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
 import { FirestoreService } from './firestore.service';
-import { HttpClient, provideHttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { BehaviorSubject, config, firstValueFrom, of } from 'rxjs';
+import { provideHttpClient } from '@angular/common/http';
 import { User } from '../../features/auth/user.model';
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { environment } from '../../../environments/environment';
 
 const fakeUser = new User('fakeEmail', '123', 'fakeToken', new Date());
 
@@ -57,13 +54,11 @@ describe('FirestoreService', () => {
     });
     httpTesting = TestBed.inject(HttpTestingController);
     service = TestBed.inject(FirestoreService);
-    //service.user = new BehaviorSubject<User | null>(fakeUser);
   });
 
   afterEach(() => {
     localStorage.clear();
   });
-  // Inject the http service and test controller for each test
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
@@ -138,6 +133,12 @@ describe('FirestoreService', () => {
       'Request to update a task'
     );
     expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual({
+      fields: {
+        state: { stringValue: 'Completed' },
+      },
+    });
+    req.flush({});
   });
   it('should delete a task', async () => {
     service.deleteTask('task123').subscribe((response) => {
