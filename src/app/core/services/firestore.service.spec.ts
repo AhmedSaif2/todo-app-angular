@@ -57,14 +57,15 @@ describe('FirestoreService', () => {
   });
 
   afterEach(() => {
-    localStorage.clear();
+    httpTesting.verify();
   });
+
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
   it('should return tasks', async () => {
     service.getTasks('123').subscribe((tasks) => {
-      console.log('Tasks: ', tasks);
       expect(tasks).toEqual(mockTasks);
     });
     const req = httpTesting.expectOne(
@@ -73,14 +74,10 @@ describe('FirestoreService', () => {
     );
     expect(req.request.method).toBe('POST');
     req.flush(mockResponse);
-
-    // Await the result to ensure completion
-
-    httpTesting.verify();
   });
+
   it('should return and empty list', async () => {
     service.getTasks('123').subscribe((tasks) => {
-      console.log('Tasks: ', tasks);
       expect(tasks).toEqual([]);
     });
     const req = httpTesting.expectOne(
@@ -121,7 +118,6 @@ describe('FirestoreService', () => {
         priority: { stringValue: 'Low' },
       },
     });
-    httpTesting.verify();
   });
 
   it('should update a task', async () => {
@@ -140,6 +136,7 @@ describe('FirestoreService', () => {
     });
     req.flush({});
   });
+
   it('should delete a task', async () => {
     service.deleteTask('task123').subscribe((response) => {
       expect(response).toBeTruthy();
