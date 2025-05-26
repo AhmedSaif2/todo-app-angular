@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { provideHttpClient } from '@angular/common/http';
 import { User } from '../../features/auth/user.model';
@@ -20,6 +20,7 @@ mockStorage.getItem.and.returnValue(fakeUser);
 
 describe('AuthService', () => {
   const identityUrl = `https://identitytoolkit.googleapis.com/v1/accounts`;
+  const firestoreUrl = `https://firestore.googleapis.com/v1/projects/todo-app-29cd9/databases/(default)/documents`;
 
   let httpTesting: HttpTestingController;
   let service: AuthService;
@@ -80,24 +81,40 @@ describe('AuthService', () => {
     spyOn(localStorage, 'setItem');
 
     service
-      .signup('fakeEmail', '123')
-      .subscribe((response) => expect(response).toBeTruthy());
+      .signup('fakeName', 'fakeName', 'fakeEmail', '123')
+      .subscribe((response) => {
+        expect(response).toBeTruthy();
+      });
     const req = httpTesting.expectOne(
       `${identityUrl}:signUp?key=${environment.firebase.apiKey}`
     );
-    expect(req.request.method).toBe('POST');
     req.flush({
       email: 'fakeEmail',
       localId: '123',
       idToken: 'fakeToken',
       expiresIn: '3600',
     });
+
+    expect(req.request.method).toBe('POST');
     expect(service.user.getValue()?.userId).toEqual(fakeUser.userId);
     expect(localStorage.setItem).toHaveBeenCalled();
+
+    const firestoreReq = httpTesting.expectOne(`${firestoreUrl}/users/123`);
+    expect(firestoreReq.request.method).toBe('PATCH');
+    firestoreReq.flush({
+      fields: {
+        email: { stringValue: 'fakeEmail' },
+        id: { stringValue: '123' },
+        firstName: { stringValue: 'fakeName' },
+        lastName: { stringValue: 'fakeName' },
+      },
+    });
+
+    expect(firestoreReq.request.method).toBe('PATCH');
   });
 
   it('should fail to signup', async () => {
-    service.signup('fakeEmail', '123').subscribe({
+    service.signup('fakeName', 'fakeName', 'fakeEmail', '123').subscribe({
       next: (res) => expect(res).toBeFalsy(),
       error: (error) => {
         expect(error).toBeTruthy();
@@ -108,6 +125,7 @@ describe('AuthService', () => {
     const req = httpTesting.expectOne(
       `${identityUrl}:signUp?key=${environment.firebase.apiKey}`
     );
+
     expect(req.request.method).toBe('POST');
     req.flush('EMAIL_EXISTS', {
       status: 400,

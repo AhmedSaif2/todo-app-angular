@@ -1,6 +1,13 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  first,
+  Observable,
+  Subject,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { User } from '../../features/auth/user.model';
 import { Router } from '@angular/router';
@@ -10,6 +17,7 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
   private readonly identityUrl = `https://identitytoolkit.googleapis.com/v1/accounts`;
+  private readonly firestoreUrl = `https://firestore.googleapis.com/v1/projects/todo-app-29cd9/databases/(default)/documents`;
 
   router = inject(Router);
   user = new BehaviorSubject<User | null>(null);
@@ -17,7 +25,12 @@ export class AuthService {
   constructor() {}
   private httpClient = inject(HttpClient);
 
-  signup(email: string, password: string): Observable<any> {
+  signup(
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string
+  ): Observable<any> {
     return this.httpClient
       .post(`${this.identityUrl}:signUp?key=${environment.firebase.apiKey}`, {
         email: email,
@@ -32,6 +45,18 @@ export class AuthService {
             res.idToken,
             res.expiresIn
           );
+          const body = {
+            fields: {
+              firstName: { stringValue: firstName },
+              lastName: { stringValue: lastName },
+              email: { stringValue: res.email },
+              id: { stringValue: res.localId },
+            },
+          };
+          console.log(body);
+          this.httpClient
+            .patch(`${this.firestoreUrl}/users/${res.localId}`, body)
+            .subscribe();
         })
       );
   }
