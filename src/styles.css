@@ -4,9 +4,18 @@ body {
   margin: 0;
 }
 
+@media only screen and (max-width: 1024px) {
+  .signup-container {
+    width: 70% !important;
+  }
+}
 @media only screen and (max-width: 750px) {
   .card-body .action-buttons {
     flex-direction: column;
+  }
+  .signup-container {
+    width: 90% !important;
+    padding: 2rem 0rem !important;
   }
 }
 @media only screen and (max-width: 700px) {
