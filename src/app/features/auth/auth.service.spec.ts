@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { HttpClient, provideHttpClient } from '@angular/common/http';
-import { BehaviorSubject, config, firstValueFrom, of } from 'rxjs';
+import { provideHttpClient } from '@angular/common/http';
 import { User } from '../../features/auth/user.model';
 import {
   HttpTestingController,
@@ -11,32 +10,6 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 
 const fakeUser = new User('fakeEmail', '123', 'fakeToken', new Date());
-
-const mockResponse = [
-  {
-    document: {
-      name: 'task123',
-      fields: {
-        title: { stringValue: 'Test Task' },
-        description: { stringValue: 'Test Description' },
-        userId: { stringValue: '123' },
-        state: { stringValue: 'Pending' },
-        priority: { stringValue: 'Low' },
-      },
-    },
-  },
-];
-
-const mockTasks = [
-  {
-    id: 'task123',
-    title: 'Test Task',
-    description: 'Test Description',
-    state: 'Pending',
-    priority: 'Low',
-    userId: '123',
-  },
-];
 
 const mockStorage = jasmine.createSpyObj('localStorage', [
   'getItem',
@@ -58,12 +31,17 @@ describe('AuthService', () => {
     httpTesting = TestBed.inject(HttpTestingController);
     service = TestBed.inject(AuthService);
   });
+
+  afterEach(() => {
+    httpTesting.verify();
+  });
+
   it('should login successfuly', async () => {
     spyOn(localStorage, 'setItem');
 
-    service
-      .login('fakeEmail', '123')
-      .subscribe((response) => expect(response).toBeTruthy());
+    service.login('fakeEmail', '123').subscribe((response) => {
+      expect(response).toBeTruthy();
+    });
 
     const req = httpTesting.expectOne(
       `${identityUrl}:signInWithPassword?key=${environment.firebase.apiKey}`
@@ -78,6 +56,26 @@ describe('AuthService', () => {
     expect(service.user.getValue()?.userId).toEqual(fakeUser.userId);
     expect(localStorage.setItem).toHaveBeenCalled();
   });
+
+  it('should fail to login', async () => {
+    service.login('fakeEmail', '123').subscribe({
+      next: (res) => expect(res).toBeFalsy(),
+      error: (error) => {
+        expect(error).toBeTruthy();
+        expect(error.error).toEqual('INVALID_LOGIN_CREDENTIALS');
+        expect(error.status).toEqual(400);
+      },
+    });
+    const req = httpTesting.expectOne(
+      `${identityUrl}:signInWithPassword?key=${environment.firebase.apiKey}`
+    );
+    expect(req.request.method).toBe('POST');
+    req.flush('INVALID_LOGIN_CREDENTIALS', {
+      status: 400,
+      statusText: 'Bad Request',
+    });
+  });
+
   it('should signup successfuly', async () => {
     spyOn(localStorage, 'setItem');
 
@@ -97,24 +95,47 @@ describe('AuthService', () => {
     expect(service.user.getValue()?.userId).toEqual(fakeUser.userId);
     expect(localStorage.setItem).toHaveBeenCalled();
   });
+
+  it('should fail to signup', async () => {
+    service.signup('fakeEmail', '123').subscribe({
+      next: (res) => expect(res).toBeFalsy(),
+      error: (error) => {
+        expect(error).toBeTruthy();
+        expect(error.error).toEqual('EMAIL_EXISTS');
+        expect(error.status).toEqual(400);
+      },
+    });
+    const req = httpTesting.expectOne(
+      `${identityUrl}:signUp?key=${environment.firebase.apiKey}`
+    );
+    expect(req.request.method).toBe('POST');
+    req.flush('EMAIL_EXISTS', {
+      status: 400,
+      statusText: 'Bad Request',
+    });
+  });
+
   it('should create a user data in local storage', async () => {
     spyOn(localStorage, 'setItem');
 
     service.handleAuthentiaction('fakeEmail', '123', 'fakeToken', '100');
     expect(localStorage.setItem).toHaveBeenCalled();
   });
+
   it('should be able to login automatically', async () => {
     spyOn(localStorage, 'getItem').and.returnValue(JSON.stringify(fakeUser));
 
     service.autoLogin();
     expect(localStorage.getItem).toHaveBeenCalledWith('userData');
   });
+
   it('should fail to login automatically', async () => {
     spyOn(localStorage, 'getItem').and.returnValue(null);
 
     service.autoLogin();
     service.user.subscribe((user) => expect(user).toBeNull());
   });
+
   it('should logout', async () => {
     spyOn(localStorage, 'removeItem');
 
