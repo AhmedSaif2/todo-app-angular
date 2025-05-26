@@ -1,40 +1,69 @@
 <div class="signup-container">
-  <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form">
-    <h2>Sign Up</h2>
+  <!-- <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form"> -->
+  <h2>Sign Up</h2>
+  <mat-horizontal-stepper [orientation]="stepperOrientation" #stepper>
+    <mat-step [stepControl]="userInfoForm" label="User Info">
+      <form [formGroup]="userInfoForm">
+        <div class="form-field">
+          <label for="firstName">First Name</label>
+          <input id="firstName" type="text" formControlName="firstName" />
+          @if (userInfoForm.controls.firstName.touched &&
+          userInfoForm.controls.firstName.invalid) {
+          <div class="error">first name is required.</div>
+          }
+        </div>
+        <div class="form-field">
+          <label for="lastName">Last Name</label>
+          <input id="lastName" type="text" formControlName="lastName" />
+          @if (userInfoForm.controls.lastName.touched &&
+          userInfoForm.controls.lastName.invalid) {
+          <div class="error">last name is required.</div>
+          }
+        </div>
+        <div>
+          <button class="stepper-button" matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step
+      [stepControl]="signupForm"
+      [completed]="false"
+      label="Account Info"
+    >
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+        <div class="form-field">
+          <label for="email">Email</label>
+          <input id="email" type="email" formControlName="email" name="email" />
+          @if (signupForm.controls.email.touched &&
+          signupForm.controls.email.invalid) {
+          <div class="error">Valid email is required.</div>
+          }
+        </div>
 
-    <div class="form-group">
-      <label for="fullName">Full Name</label>
-      <input id="fullName" type="text" formControlName="fullName" />
-      @if (signupForm.controls.fullName.touched &&
-      signupForm.controls.fullName.invalid) {
-      <div class="error">Full name is required.</div>
-      }
-    </div>
-
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input id="email" type="email" formControlName="email" name="email" />
-      @if (signupForm.controls.email.touched &&
-      signupForm.controls.email.invalid) {
-      <div class="error">Valid email is required.</div>
-      }
-    </div>
-
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input id="password" type="password" formControlName="password" />
-      @if (signupForm.controls.password.touched &&
-      signupForm.controls.password.invalid) {
-      <div class="error">Password must be at least 6 characters.</div>
-      }
-    </div>
-    <button type="submit" [disabled]="signupForm.invalid">
-      Create Account
-    </button>
-    @if (error) {
-    <div class="error">A user with this email already exists.</div>
-    }
-  </form>
+        <div class="form-field">
+          <label for="password">Password</label>
+          <input id="password" type="password" formControlName="password" />
+          @if (signupForm.controls.password.touched &&
+          signupForm.controls.password.invalid) {
+          <div class="error">Password must be at least 6 characters.</div>
+          }
+        </div>
+        @if (error) {
+        <div class="error">A user with this email already exists.</div>
+        }
+        <button class="stepper-button" matStepperPrevious>Previous</button>
+        <div class="create-account">
+          <button
+            type="submit"
+            [disabled]="signupForm.invalid || userInfoForm.invalid"
+          >
+            Create Account
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-horizontal-stepper>
+  <!-- </form> -->
 </div>
 @if (isLoading) {
 <app-loading-spinner />

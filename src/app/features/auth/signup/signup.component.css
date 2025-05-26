@@ -1,18 +1,10 @@
 .signup-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  min-height: 50vh;
-}
-
-.signup-form {
   background-color: #fff;
-  padding: 2rem;
+  padding: 1rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
+  width: 50%;
+  margin: 5rem auto;
 }
 
 h2 {
@@ -20,15 +12,10 @@ h2 {
   margin-bottom: 1.5rem;
 }
 
-.form-group {
-  margin-bottom: 1.25rem;
+.form-field {
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
-}
-
-label {
-  font-weight: 500;
-  margin-bottom: 0.5rem;
 }
 
 input {
@@ -44,19 +31,31 @@ input:focus {
   outline: none;
 }
 
-button {
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
+.stepper-button {
+  background-color: transparent;
+  padding: 0.5rem;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
+.stepper-button:hover {
+  color: #3f51b5;
+}
+.create-account {
+  text-align: center;
+  margin-top: 1rem;
+}
+.create-account button {
+  background-color: #3f51b5;
+  color: white;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  padding: 0.75rem;
+}
 
-button:disabled {
+.create-account button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }

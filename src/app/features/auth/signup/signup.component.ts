@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 import {
-  EmailValidator,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
@@ -10,10 +9,16 @@ import { Router } from '@angular/router';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { finalize } from 'rxjs';
 import { AuthService } from '../auth.service';
+import { MatStepperModule } from '@angular/material/stepper';
+import {
+  BreakpointObserver,
+  Breakpoints,
+  LayoutModule,
+} from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-signup',
-  imports: [ReactiveFormsModule, LoadingSpinnerComponent],
+  imports: [ReactiveFormsModule, LoadingSpinnerComponent, MatStepperModule],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css',
 })
@@ -22,11 +27,21 @@ export class SignupComponent {
   private router = inject(Router);
   isLoading = false;
   error = false;
-
-  signupForm = new FormGroup({
-    fullName: new FormControl('', {
+  stepperOrientation: 'horizontal' | 'vertical' = 'horizontal';
+  constructor(private breakpointObserver: BreakpointObserver) {
+    this.breakpointObserver.observe(Breakpoints.Handset).subscribe((result) => {
+      this.stepperOrientation = result.matches ? 'vertical' : 'horizontal';
+    });
+  }
+  userInfoForm = new FormGroup({
+    firstName: new FormControl('', {
       validators: [Validators.required, Validators.minLength(3)],
     }),
+    lastName: new FormControl('', {
+      validators: [Validators.required, Validators.minLength(3)],
+    }),
+  });
+  signupForm = new FormGroup({
     email: new FormControl('', {
       validators: [Validators.required, Validators.email],
     }),
@@ -37,7 +52,12 @@ export class SignupComponent {
   onSubmit() {
     this.isLoading = true;
     this.authService
-      .signup(this.signupForm.value.email!, this.signupForm.value.password!)
+      .signup(
+        this.userInfoForm.value.firstName!,
+        this.userInfoForm.value.lastName!,
+        this.signupForm.value.email!,
+        this.signupForm.value.password!
+      )
       .pipe(
         finalize(() => {
           this.isLoading = false;
